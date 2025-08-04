@@ -62,7 +62,7 @@ export default class EditDelivery extends Delivery {
 
             this.selectEl = getSelectEl();
 
-            const emptyOptionalEl = getOptionEl("empty", "--- Статус ---");
+            const emptyOptionalEl = getOptionEl("", "--- Статус ---");
             const canceledOptionalEl = getOptionEl("canceled", "Отменен");
             const deliveringOptionalEl = getOptionEl("delivering", "Доставляется");
             const deleveredOptionalEl = getOptionEl("delivered", "Доставлен");
@@ -76,22 +76,22 @@ export default class EditDelivery extends Delivery {
 
                 this.name = nameInputEl.value;
                 this.address = addressInputEl.value;
-                this.distance = distanceInputEl.value;
 
-                if (this.selectEl.value) {
-                    this.cardEl.classList.add(this.selectEl.value)
-
-                    if (this.selectEl.value === "canceled") {
-                        this.editButtonEl.disabled = true;
-                        this.status = this.selectEl.value;
-                        this.cardEl.classList.remove("delivered")
-                    } else if (this.selectEl.value === "delivering") {
-                        this.editButtonEl.disabled = false;
-                        this.cardEl.classList.remove("delivered")
-                    } else {
-                        this.editButtonEl.disabled = false;
-                    }
+                const newDistance = parseFloat(distanceInputEl.value);
+                if (!isNaN(newDistance)) {
+                    this.distance = newDistance;
+                    this.distanceEl.textContent = this.distance + " км";
                 }
+
+                this.status = this.selectEl.value;
+
+                this.cardEl.classList.remove("canceled", "delivering", "delivered", "empty");
+
+                if (this.status) {
+                    this.cardEl.classList.add(this.status);
+                }
+
+                this.editButtonEl.disabled = this.status === "canceled";
 
                 editCard.style.display = "none"
                 document.body.classList.remove("edit-card__shadow");
@@ -103,6 +103,8 @@ export default class EditDelivery extends Delivery {
                 deliveringOptionalEl,
                 deleveredOptionalEl
             );
+
+            this.selectEl.value = this.status || "";
 
             formEl.append(
                 nameInputEl,
